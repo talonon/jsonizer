@@ -1,16 +1,13 @@
-<?php namespace Talonon\Jsonizer\Encoder;
+<?php namespace Talonon\Jsonizer\Serializer;
 
-use Talonon\Jsonizer\BaseCoder;
-use Talonon\Jsonizer\JsonizedResponse;
-use Talonon\Jsonizer\MapsOutput;
 use Illuminate\Contracts\Support\Arrayable;
-use Kps3\Framework\Exceptions\EntityNotFoundException;
+use Talonon\Jsonizer\JsonizedResponse;
+use Talonon\Jsonizer\Jsonizer;
+use Talonon\Jsonizer\JsonizesOutputInterface;
 
-class Encoder extends BaseCoder {
+class Serializer {
 
-  public function __construct($mappers, $allowedRelationships = null) {
-    parent::__construct($mappers);
-
+  public function __construct($allowedRelationships = null) {
     if (!is_null($allowedRelationships) && !is_array($allowedRelationships)) {
       $allowedRelationships = explode(',', $allowedRelationships);
     }
@@ -21,7 +18,7 @@ class Encoder extends BaseCoder {
   private $_meta = ['can-include' => []];
   private $_pagination = null;
 
-  public function Encode(&$data) {
+  public function Serialize(&$data) {
     $includeMeta = \Input::get('meta', false);
     if ($data instanceof JsonizedResponse) {
       $result = $data;
@@ -42,14 +39,11 @@ class Encoder extends BaseCoder {
     if (is_scalar($data) || is_null($data) || empty($data)) {
       return;
     } else if ($data instanceof \Closure) {
-      try {
-        $result = $data();
-      }
-      catch (EntityNotFoundException $nfex) {
-        return null;
-      }
+      $result = app('jsonizer')->Load($data);
     } else {
-      $mapper = $this->getMapper(get_class($data));
+      /** @var Jsonizer $jsonizer */
+      $jsonizer = app('jsonizer');
+      $mapper = $jsonizer->Get(get_class($data));
       if (!$mapper) {
         $data = null;
         return;
@@ -74,8 +68,7 @@ class Encoder extends BaseCoder {
     }
   }
 
-
-  private function _getRelatedItems(&$data, MapsOutput $mapper) {
+  private function _getRelatedItems(&$data, JsonizesOutputInterface $mapper) {
 
     $relationships = $mapper->GetRelationships($data);
     $prefix = $mapper->GetResourceType() . '.';

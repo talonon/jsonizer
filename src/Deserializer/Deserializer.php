@@ -15,7 +15,7 @@ class Deserializer {
    */
   private $_options;
 
-  public function Decode(&$data, $into) {
+  public function Deserialize(&$data, $into) {
     if ($this->_options->GetRootKey()) {
       $data = array_get($data, $this->_options->GetRootKey(), null);
       if ($data === null) {
