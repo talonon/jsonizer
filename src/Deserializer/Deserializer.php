@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Collection;
 use Talonon\Jsonizer\BaseCoder;
+use Talonon\Jsonizer\Jsonizer;
 use Talonon\Jsonizer\ObjectizesInputInterface;
 
 class Deserializer {
@@ -22,10 +23,10 @@ class Deserializer {
         return null;
       }
     }
-    return $this->_decodeData($data, $into, true);
+    return $this->_deserializeData($data, $into, true);
   }
 
-  private function _decodeData(&$data, $into = false, $isRoot = false) {
+  private function _deserializeData(&$data, $into = false, $isRoot = false) {
     if (is_array($data) && count($data) == 0) {
       return null;
     }
@@ -37,11 +38,11 @@ class Deserializer {
       for ($x = 0, $c = count($data); $x < $c; $x++) {
         $class = get_class($into);
         $new = new $class;
-        $results->push($this->_decodeItem($data[$x], $new));
+        $results->push($this->_deserializeItem($data[$x], $new));
       }
       return $results;
     } else {
-      return $this->_decodeItem($data, $into);
+      return $this->_deserializeItem($data, $into);
     }
   }
 
@@ -50,8 +51,10 @@ class Deserializer {
    * @param mixed $into
    * @returns mixed
    */
-  private function _decodeItem(array &$item, $into) {
-    $mapper = $this->getMapper(get_class($into));
+  private function _deserializeItem(array &$item, $into) {
+    /** @var Jsonizer $jsonizer */
+    $jsonizer = app('jsonizer');
+    $mapper = $jsonizer->Get(get_class($into));
     if (!$mapper) {
       return null;
     }
@@ -74,7 +77,7 @@ class Deserializer {
       $data = &$item[$name];
       $mapper->SetRelationships(
         $model, $name, function ($class) use ($data) {
-        return $data ? $this->_decodeData($data, new $class) : null;
+        return $data ? $this->_deserializeData($data, new $class) : null;
       });
     }
   }

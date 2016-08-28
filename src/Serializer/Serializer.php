@@ -18,8 +18,7 @@ class Serializer {
   private $_meta = ['can-include' => []];
   private $_pagination = null;
 
-  public function Serialize(&$data) {
-    $includeMeta = \Input::get('meta', false);
+  public function Serialize(&$data, $includeMeta = false) {
     if ($data instanceof JsonizedResponse) {
       $result = $data;
       $this->_meta = $data->GetIncludeDefaultMeta() ? array_merge($this->_meta, $data->GetMeta()) : $data->GetMeta();
@@ -28,14 +27,14 @@ class Serializer {
     } else {
       $result = new JsonizedResponse();
     }
-    $this->_encodeData($data);
+    $this->_serializeData($data);
     return $result->SetData($data)
                   ->SetMeta($this->_meta)
                   ->SetPagination($this->_pagination)
                   ->SetIncludeMeta($includeMeta);
   }
 
-  private function _encodeItem(&$data) {
+  private function _serializeItem(&$data) {
     if (is_scalar($data) || is_null($data) || empty($data)) {
       return;
     } else if ($data instanceof \Closure) {
@@ -51,20 +50,20 @@ class Serializer {
       $result = $mapper->GetAttributes($data);
       $result = is_array($result) ? array_merge($result, $this->_getRelatedItems($data, $mapper)) : $result;
     }
-    $this->_encodeData($result);
+    $this->_serializeData($result);
     $data = $result;
   }
 
-  private function _encodeData(&$data) {
+  private function _serializeData(&$data) {
     if (is_array($data) || $data instanceof \ArrayAccess) {
       if ($data instanceof Arrayable) {
         $data = $data->toArray();
       }
       foreach ($data as $key => &$result) {
-        $this->_encodeData($data[$key]);
+        $this->_serializeData($data[$key]);
       }
     } else {
-      $this->_encodeItem($data);
+      $this->_serializeItem($data);
     }
   }
 
