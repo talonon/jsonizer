@@ -1,5 +1,12 @@
 <?php namespace Talonon\Jsonizer;
+use Carbon\Carbon;
+use Talonon\Jsonizer\DefaultJsonizers\CarbonJsonizer;
+
 class Jsonizer {
+
+  public function __construct() {
+    $this->Map(Carbon::class, CarbonJsonizer::class);
+  }
 
   /**
    * @var \Closure
