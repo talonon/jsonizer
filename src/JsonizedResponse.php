@@ -86,7 +86,7 @@ class JsonizedResponse implements Arrayable, Jsonable, \JsonSerializable {
    * @return mixed
    */
   public function GetPagination() {
-    return $this->_pagination;
+    return $this->_pagination ?: [];
   }
 
   /**
@@ -119,8 +119,7 @@ class JsonizedResponse implements Arrayable, Jsonable, \JsonSerializable {
       [
         'result' => $this->GetData(),
         'meta'   => $this->_includeMeta ? array_filter($this->GetMeta()) : null,
-        'page'   => $this->GetPagination()
-      ], function ($value) {
+      ] + $this->GetPagination(), function ($value) {
       return $value !== null;
     });
   }
