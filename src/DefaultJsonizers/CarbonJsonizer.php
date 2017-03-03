@@ -11,7 +11,7 @@ class CarbonJsonizer implements JsonizesOutputInterface {
     return self::$_timezone ?: (new \DateTimeZone('UTC'));
   }
 
-  public function SetTimeZone(\DateTimeZone $timeZone) {
+  public static function SetTimeZone(\DateTimeZone $timeZone) {
     self::$_timezone = $timeZone;
   }
 
