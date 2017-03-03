@@ -5,12 +5,21 @@ use Talonon\Jsonizer\JsonizesOutputInterface;
 
 class CarbonJsonizer implements JsonizesOutputInterface {
 
+  /**
+   * @var \DateTimeZone
+   */
   private static $_timezone;
 
+  /**
+   * @return \DateTimeZone
+   */
   private static function _getTimeZone() {
     return self::$_timezone ?: (new \DateTimeZone('UTC'));
   }
 
+  /**
+   * @param \DateTimeZone $timeZone
+   */
   public static function SetTimeZone(\DateTimeZone $timeZone) {
     self::$_timezone = $timeZone;
   }
