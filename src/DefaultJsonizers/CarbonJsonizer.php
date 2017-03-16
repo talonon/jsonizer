@@ -10,12 +10,7 @@ class CarbonJsonizer implements JsonizesOutputInterface {
    */
   private static $_timezone;
 
-  /**
-   * @return \DateTimeZone
-   */
-  private static function _getTimeZone() {
-    return self::$_timezone ?: (new \DateTimeZone('UTC'));
-  }
+  private static $_format = 'Y-m-d H:i:s';
 
   /**
    * @param \DateTimeZone $timeZone
@@ -25,11 +20,25 @@ class CarbonJsonizer implements JsonizesOutputInterface {
   }
 
   /**
+   * @param \DateTimeZone $timeZone
+   */
+  public static function SetFormat(string $format) {
+    self::$_format = $format;
+  }
+
+  /**
+   * @return \DateTimeZone
+   */
+  private static function _getTimeZone() {
+    return self::$_timezone ?: (new \DateTimeZone('UTC'));
+  }
+
+  /**
    * @param Carbon $date
    * @return string
    */
   public function GetAttributes($date) {
-    return $date->setTimezone(self::_getTimeZone())->toDateTimeString();
+    return $date->setTimezone(self::_getTimeZone())->format(self::$_format);
   }
 
   public function GetRelationships($date) {
