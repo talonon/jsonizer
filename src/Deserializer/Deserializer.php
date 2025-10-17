@@ -18,7 +18,7 @@ class Deserializer {
 
   public function Deserialize(&$data, $into) {
     if ($this->_options->GetRootKey()) {
-      $data = array_get($data, $this->_options->GetRootKey(), null);
+      $data = \Arr::get($data, $this->_options->GetRootKey(), null);
       if ($data === null) {
         return null;
       }
